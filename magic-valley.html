@@ -1,0 +1,1063 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Magic Valley Animal Finder</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Cinzel:wght@400;600;700&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet"/>
+<style>
+/* ===== CSS VARIABLES & RESET ===== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --gold: #f0c040;
+  --gold-glow: #ffe066;
+  --emerald: #2ecc71;
+  --deep-teal: #0a2a2a;
+  --forest: #0d3d2b;
+  --midnight: #060d1a;
+  --mist: rgba(180,220,200,0.18);
+  --panel: rgba(8,28,22,0.82);
+  --glass: rgba(255,255,255,0.07);
+  --text-light: #e8f5e5;
+  --text-gold: #f0d070;
+  --shadow-gold: 0 0 30px rgba(240,192,64,0.5);
+  --shadow-green: 0 0 30px rgba(46,204,113,0.4);
+  --radius: 18px;
+  --transition: 0.4s cubic-bezier(0.23,1,0.32,1);
+}
+
+html, body {
+  height: 100%;
+  overflow: hidden;
+  font-family: 'Lora', serif;
+  background: var(--midnight);
+  color: var(--text-light);
+  cursor: default;
+}
+
+/* ===== BACKGROUND VALLEY ===== */
+#valley-bg {
+  position: fixed; inset: 0; z-index: 0;
+  background:
+    radial-gradient(ellipse 120% 60% at 50% 100%, #1a4a20 0%, transparent 60%),
+    radial-gradient(ellipse 80% 50% at 20% 80%, #0e3020 0%, transparent 50%),
+    radial-gradient(ellipse 80% 50% at 80% 80%, #0e3020 0%, transparent 50%),
+    radial-gradient(ellipse 100% 80% at 50% 50%, #061218 0%, #040c14 100%);
+  overflow: hidden;
+}
+
+/* Stars */
+#valley-bg::before {
+  content:'';
+  position:absolute; inset:0;
+  background-image:
+    radial-gradient(1px 1px at 10% 15%, #fff 0%, transparent 100%),
+    radial-gradient(1px 1px at 25% 8%, #fff 0%, transparent 100%),
+    radial-gradient(1.5px 1.5px at 40% 5%, #ffe8a0 0%, transparent 100%),
+    radial-gradient(1px 1px at 55% 12%, #fff 0%, transparent 100%),
+    radial-gradient(1px 1px at 70% 7%, #fff 0%, transparent 100%),
+    radial-gradient(1.5px 1.5px at 85% 3%, #ffe8a0 0%, transparent 100%),
+    radial-gradient(1px 1px at 92% 18%, #fff 0%, transparent 100%),
+    radial-gradient(1px 1px at 5% 30%, #fff 0%, transparent 100%),
+    radial-gradient(1px 1px at 15% 40%, #fff 0%, transparent 100%),
+    radial-gradient(1px 1px at 95% 35%, #fff 0%, transparent 100%),
+    radial-gradient(1px 1px at 78% 25%, #fff 0%, transparent 100%),
+    radial-gradient(1.5px 1.5px at 62% 20%, #c8f0ff 0%, transparent 100%),
+    radial-gradient(1px 1px at 33% 22%, #fff 0%, transparent 100%),
+    radial-gradient(1px 1px at 48% 28%, #fff 0%, transparent 100%),
+    radial-gradient(1px 1px at 88% 45%, #fff 0%, transparent 100%);
+  animation: twinkle 4s ease-in-out infinite alternate;
+}
+
+@keyframes twinkle {
+  from { opacity:0.6; }
+  to { opacity:1; }
+}
+
+/* Mountains */
+.mountain {
+  position:absolute; bottom:0;
+  clip-path: polygon(0% 100%, 50% 0%, 100% 100%);
+}
+.mountain-1 { left:-5%; width:45%; height:55%; background:linear-gradient(160deg,#0c2a1a,#061510); }
+.mountain-2 { left:20%; width:35%; height:42%; background:linear-gradient(150deg,#0f3022,#071a10); }
+.mountain-3 { right:-5%; width:45%; height:50%; background:linear-gradient(200deg,#0c2a1a,#061510); }
+.mountain-4 { right:15%; width:38%; height:45%; background:linear-gradient(190deg,#0f3022,#071a10); }
+.mountain-5 { left:35%; width:40%; height:35%; background:linear-gradient(170deg,#152e20,#0a1f12); }
+
+/* Glowing trees */
+.tree {
+  position:absolute; bottom:0;
+  width:40px; height:120px;
+}
+.tree::before {
+  content:'🌲';
+  position:absolute; bottom:0;
+  font-size:clamp(32px,5vw,64px);
+  filter: drop-shadow(0 0 8px rgba(100,200,100,0.6)) drop-shadow(0 0 20px rgba(50,180,80,0.3));
+  animation: treeSway 3s ease-in-out infinite;
+}
+.tree:nth-child(odd)::before { animation-direction:alternate-reverse; }
+@keyframes treeSway {
+  0%,100% { transform:rotate(-2deg); }
+  50% { transform:rotate(2deg); }
+}
+
+/* Moon */
+#moon {
+  position:absolute; top:6%; right:10%;
+  width:80px; height:80px;
+  border-radius:50%;
+  background:radial-gradient(circle at 35% 35%, #fffde0, #f0d860, #c8a820);
+  box-shadow: 0 0 20px 8px rgba(255,240,100,0.4), 0 0 60px 20px rgba(255,220,50,0.2);
+  animation: moonGlow 5s ease-in-out infinite alternate;
+}
+@keyframes moonGlow {
+  from { box-shadow: 0 0 20px 8px rgba(255,240,100,0.4), 0 0 60px 20px rgba(255,220,50,0.2); }
+  to   { box-shadow: 0 0 30px 14px rgba(255,240,100,0.6), 0 0 90px 35px rgba(255,220,50,0.3); }
+}
+
+/* Floating particles */
+#particles { position:fixed; inset:0; z-index:1; pointer-events:none; }
+.particle {
+  position:absolute;
+  border-radius:50%;
+  animation: floatUp linear infinite;
+  opacity:0;
+}
+@keyframes floatUp {
+  0%   { transform:translateY(0) translateX(0) scale(0.5); opacity:0; }
+  10%  { opacity:1; }
+  90%  { opacity:0.8; }
+  100% { transform:translateY(-80vh) translateX(var(--dx)) scale(1.2); opacity:0; }
+}
+
+/* Runes */
+.rune {
+  position:absolute;
+  font-size:18px;
+  color:rgba(100,255,150,0.4);
+  animation: runeDrift 8s ease-in-out infinite;
+  pointer-events:none;
+  user-select:none;
+}
+@keyframes runeDrift {
+  0%,100% { transform:translateY(0) rotate(0deg); opacity:0.3; }
+  50% { transform:translateY(-20px) rotate(15deg); opacity:0.7; }
+}
+
+/* ===== FOG LAYERS ===== */
+.fog-layer {
+  position:fixed; inset:0; z-index:2;
+  background:radial-gradient(ellipse 120% 40% at 50% 100%, rgba(140,200,160,0.15) 0%, transparent 70%);
+  pointer-events:none;
+  animation: fogDrift 12s ease-in-out infinite alternate;
+}
+.fog-layer:nth-child(2) {
+  background:radial-gradient(ellipse 100% 30% at 30% 90%, rgba(120,180,150,0.12) 0%, transparent 70%);
+  animation-delay:-5s; animation-duration:15s;
+}
+.fog-layer:nth-child(3) {
+  background:radial-gradient(ellipse 100% 30% at 70% 85%, rgba(120,180,150,0.10) 0%, transparent 70%);
+  animation-delay:-9s; animation-duration:18s;
+}
+@keyframes fogDrift {
+  from { transform:translateX(-3%) scaleY(0.9); opacity:0.7; }
+  to   { transform:translateX(3%) scaleY(1.1); opacity:1; }
+}
+
+/* ===== LANGUAGE BUTTON ===== */
+#lang-btn {
+  position:fixed; top:16px; right:16px; z-index:1000;
+  background:var(--glass);
+  border:1px solid rgba(240,192,64,0.4);
+  color:var(--gold);
+  font-family:'Cinzel', serif;
+  font-size:13px; font-weight:600;
+  padding:8px 18px;
+  border-radius:30px;
+  cursor:pointer;
+  backdrop-filter:blur(10px);
+  transition:var(--transition);
+  letter-spacing:1px;
+}
+#lang-btn:hover {
+  background:rgba(240,192,64,0.2);
+  border-color:var(--gold);
+  box-shadow:var(--shadow-gold);
+}
+
+/* ===== SCREENS ===== */
+.screen {
+  position:fixed; inset:0; z-index:10;
+  display:flex; align-items:center; justify-content:center;
+  transition:opacity 0.7s ease, transform 0.7s ease;
+  padding:16px;
+}
+.screen.hidden {
+  opacity:0; pointer-events:none;
+  transform:scale(1.04);
+}
+.screen.out {
+  opacity:0; pointer-events:none;
+  transform:scale(0.95);
+}
+
+/* ===== GLASS PANEL ===== */
+.panel {
+  background:var(--panel);
+  border:1px solid rgba(240,192,64,0.25);
+  border-radius:var(--radius);
+  backdrop-filter:blur(20px);
+  box-shadow:0 8px 60px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.08);
+  overflow:hidden;
+  position:relative;
+}
+.panel::before {
+  content:'';
+  position:absolute; top:0; left:0; right:0; height:1px;
+  background:linear-gradient(90deg,transparent,rgba(240,192,64,0.5),transparent);
+}
+
+/* ===== BUTTONS ===== */
+.btn {
+  font-family:'Cinzel', serif;
+  font-weight:700;
+  border:none;
+  border-radius:50px;
+  cursor:pointer;
+  transition:var(--transition);
+  position:relative;
+  overflow:hidden;
+  letter-spacing:1.5px;
+  text-transform:uppercase;
+}
+.btn::before {
+  content:'';
+  position:absolute; inset:0;
+  background:linear-gradient(135deg,rgba(255,255,255,0.15),transparent);
+  opacity:0; transition:opacity 0.3s;
+}
+.btn:hover::before { opacity:1; }
+.btn:active { transform:scale(0.96) !important; }
+
+.btn-gold {
+  background:linear-gradient(135deg,#b8860b,#daa520,#f0c040,#daa520,#b8860b);
+  background-size:200% 200%;
+  color:#1a0e00;
+  font-size:clamp(14px,2.5vw,18px);
+  padding:16px 40px;
+  box-shadow:0 4px 20px rgba(180,140,0,0.5), 0 0 40px rgba(240,192,64,0.3);
+  animation:shimmerBtn 3s ease infinite;
+}
+@keyframes shimmerBtn {
+  0%,100% { background-position:0% 50%; }
+  50% { background-position:100% 50%; }
+}
+.btn-gold:hover {
+  transform:translateY(-3px) scale(1.04);
+  box-shadow:0 8px 30px rgba(180,140,0,0.7), 0 0 60px rgba(240,192,64,0.5);
+}
+
+.btn-emerald {
+  background:linear-gradient(135deg,#1a5e35,#27ae60,#2ecc71,#27ae60,#1a5e35);
+  background-size:200% 200%;
+  color:#e8ffe8;
+  font-size:clamp(13px,2vw,16px);
+  padding:12px 30px;
+  box-shadow:0 4px 20px rgba(46,204,113,0.4);
+  animation:shimmerBtn 3s ease infinite;
+}
+.btn-emerald:hover {
+  transform:translateY(-2px) scale(1.03);
+  box-shadow:0 6px 25px rgba(46,204,113,0.6), 0 0 40px rgba(46,204,113,0.3);
+}
+
+.btn-yes {
+  background:linear-gradient(135deg,#1a4a1a,#228b22,#32cd32);
+  color:#e0ffe0;
+  font-size:clamp(12px,2vw,15px);
+  padding:10px 24px;
+  box-shadow:0 3px 15px rgba(50,205,50,0.4);
+}
+.btn-yes:hover { transform:translateY(-2px); box-shadow:0 5px 20px rgba(50,205,50,0.6); }
+
+.btn-no {
+  background:linear-gradient(135deg,#5e1a1a,#8b2222,#cd3232);
+  color:#ffe0e0;
+  font-size:clamp(12px,2vw,15px);
+  padding:10px 24px;
+  box-shadow:0 3px 15px rgba(205,50,50,0.4);
+}
+.btn-no:hover { transform:translateY(-2px); box-shadow:0 5px 20px rgba(205,50,50,0.6); }
+
+/* ===== WELCOME SCREEN ===== */
+#screen-welcome .panel {
+  max-width:520px; width:100%;
+  padding:48px 40px 40px;
+  text-align:center;
+}
+
+.valley-title {
+  font-family:'Cinzel Decorative', cursive;
+  font-size:clamp(20px,5vw,34px);
+  font-weight:900;
+  color:var(--gold-glow);
+  text-shadow:0 0 20px rgba(255,224,102,0.6), 0 2px 8px rgba(0,0,0,0.8);
+  margin-bottom:8px;
+  line-height:1.2;
+  animation:titleGlow 3s ease-in-out infinite alternate;
+}
+@keyframes titleGlow {
+  from { text-shadow:0 0 20px rgba(255,224,102,0.4), 0 2px 8px rgba(0,0,0,0.8); }
+  to   { text-shadow:0 0 40px rgba(255,224,102,0.9), 0 0 80px rgba(255,192,0,0.4), 0 2px 8px rgba(0,0,0,0.8); }
+}
+
+.hunter-avatar {
+  width:120px; height:120px;
+  margin:24px auto;
+  font-size:80px;
+  line-height:120px;
+  text-align:center;
+  filter:drop-shadow(0 0 15px rgba(240,192,64,0.5));
+  animation:hunterBob 2s ease-in-out infinite alternate;
+}
+@keyframes hunterBob {
+  from { transform:translateY(0); }
+  to   { transform:translateY(-8px); }
+}
+
+/* ===== ANIMAL SELECTION ===== */
+#screen-animals .panel {
+  max-width:1100px; width:100%;
+  padding:28px;
+  max-height:96vh;
+  overflow-y:auto;
+}
+#screen-animals .panel::-webkit-scrollbar { width:6px; }
+#screen-animals .panel::-webkit-scrollbar-track { background:rgba(255,255,255,0.05); }
+#screen-animals .panel::-webkit-scrollbar-thumb { background:var(--gold); border-radius:3px; }
+
+.section-title {
+  font-family:'Cinzel Decorative', cursive;
+  font-size:clamp(14px,3vw,22px);
+  color:var(--gold);
+  text-align:center;
+  margin-bottom:20px;
+  text-shadow:0 0 15px rgba(240,192,64,0.4);
+}
+
+.speech-bubble {
+  background:rgba(255,255,255,0.06);
+  border:1px solid rgba(240,192,64,0.3);
+  border-radius:16px;
+  padding:16px 20px;
+  margin:0 auto 24px;
+  max-width:600px;
+  text-align:center;
+  position:relative;
+  font-style:italic;
+  font-size:clamp(12px,2vw,15px);
+  color:var(--text-gold);
+  line-height:1.6;
+}
+.speech-bubble::after {
+  content:'';
+  position:absolute; bottom:-14px; left:50%;
+  transform:translateX(-50%);
+  border:7px solid transparent;
+  border-top-color:rgba(240,192,64,0.3);
+}
+
+.animals-grid {
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(130px,1fr));
+  gap:14px;
+  margin-bottom:24px;
+}
+
+.animal-card {
+  background:rgba(255,255,255,0.05);
+  border:1px solid rgba(240,192,64,0.2);
+  border-radius:14px;
+  padding:16px 8px;
+  text-align:center;
+  cursor:default;
+  transition:var(--transition);
+  position:relative;
+  overflow:hidden;
+}
+.animal-card::before {
+  content:'';
+  position:absolute; inset:0;
+  background:linear-gradient(135deg,rgba(240,192,64,0.1),transparent);
+  opacity:0; transition:opacity 0.3s;
+}
+.animal-card:hover::before { opacity:1; }
+.animal-card:hover {
+  transform:translateY(-6px) scale(1.04);
+  border-color:rgba(240,192,64,0.6);
+  box-shadow:0 8px 25px rgba(0,0,0,0.5), 0 0 20px rgba(240,192,64,0.2);
+}
+
+.animal-emoji {
+  font-size:clamp(36px,6vw,52px);
+  display:block;
+  margin-bottom:8px;
+  filter:drop-shadow(0 0 6px rgba(255,220,100,0.3));
+  transition:transform 0.3s;
+}
+.animal-card:hover .animal-emoji { transform:scale(1.15) rotate(-5deg); }
+
+.animal-name {
+  font-family:'Cinzel', serif;
+  font-size:clamp(10px,1.5vw,13px);
+  font-weight:600;
+  color:var(--text-light);
+  display:block;
+}
+.animal-name-uz {
+  font-size:clamp(9px,1.2vw,11px);
+  color:rgba(200,220,200,0.6);
+  display:block;
+  margin-top:2px;
+}
+
+.hunter-row {
+  display:flex; align-items:center; justify-content:center;
+  gap:16px; margin-bottom:20px;
+}
+.hunter-sm { font-size:40px; animation:hunterBob 2s ease-in-out infinite alternate; }
+
+/* ===== EXPLANATION SCREEN ===== */
+#screen-explain .panel {
+  max-width:600px; width:100%;
+  padding:48px 40px;
+  text-align:center;
+}
+.explain-text {
+  font-size:clamp(13px,2vw,17px);
+  line-height:1.8;
+  color:var(--text-gold);
+  margin:24px 0 32px;
+  font-style:italic;
+}
+.hunter-big { font-size:80px; animation:hunterBob 2s ease-in-out infinite alternate; }
+
+/* ===== REGIONS SCREEN ===== */
+#screen-regions {
+  align-items:flex-start;
+  overflow-y:auto;
+  padding:70px 16px 20px;
+}
+#screen-regions .panel {
+  max-width:1000px; width:100%;
+  padding:28px;
+}
+
+.regions-grid {
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:16px;
+  margin-top:16px;
+}
+@media(max-width:600px) { .regions-grid { grid-template-columns:1fr; } }
+
+.region-card {
+  background:rgba(255,255,255,0.04);
+  border:1px solid rgba(240,192,64,0.2);
+  border-radius:16px;
+  padding:20px;
+  transition:var(--transition);
+}
+.region-card.answered {
+  border-color:rgba(100,200,100,0.5);
+  background:rgba(46,204,113,0.05);
+}
+.region-card.answered-no {
+  border-color:rgba(200,80,80,0.4);
+  background:rgba(205,50,50,0.04);
+}
+
+.region-name {
+  font-family:'Cinzel Decorative', cursive;
+  font-size:clamp(13px,2.5vw,18px);
+  color:var(--gold);
+  margin-bottom:14px;
+  display:flex; align-items:center; gap:8px;
+}
+
+.region-animals {
+  display:flex; flex-wrap:wrap; gap:6px;
+  margin-bottom:16px;
+}
+.region-animal-tag {
+  background:rgba(255,255,255,0.06);
+  border:1px solid rgba(255,255,255,0.1);
+  border-radius:20px;
+  padding:4px 10px;
+  font-size:clamp(10px,1.5vw,12px);
+  display:flex; align-items:center; gap:4px;
+}
+.region-animal-tag .tag-emoji { font-size:14px; }
+
+.region-btns {
+  display:flex; gap:10px;
+}
+
+.answered-badge {
+  display:inline-flex; align-items:center; gap:6px;
+  background:rgba(46,204,113,0.15);
+  border:1px solid rgba(46,204,113,0.4);
+  border-radius:20px;
+  padding:6px 14px;
+  font-size:13px;
+  color:#7dff9a;
+  font-family:'Cinzel', serif;
+}
+.answered-badge.no-badge {
+  background:rgba(205,50,50,0.15);
+  border-color:rgba(205,50,50,0.4);
+  color:#ff9090;
+}
+
+/* Progress dots */
+.progress-row {
+  display:flex; gap:10px; justify-content:center; margin:16px 0;
+}
+.prog-dot {
+  width:12px; height:12px; border-radius:50%;
+  background:rgba(255,255,255,0.15);
+  border:1px solid rgba(255,255,255,0.2);
+  transition:var(--transition);
+}
+.prog-dot.done-yes { background:#32cd32; box-shadow:0 0 8px #32cd32; }
+.prog-dot.done-no  { background:#cd3232; box-shadow:0 0 8px #cd3232; }
+
+/* ===== REVEAL SCREEN ===== */
+#screen-reveal {
+  flex-direction:column;
+}
+#screen-reveal .panel {
+  max-width:560px; width:100%;
+  padding:48px 40px;
+  text-align:center;
+  overflow:visible;
+}
+
+.reveal-animal-big {
+  font-size:clamp(80px,18vw,140px);
+  display:block;
+  margin:16px auto;
+  animation:revealPop 0.8s cubic-bezier(0.34,1.56,0.64,1) both;
+  filter:drop-shadow(0 0 30px rgba(240,192,64,0.6)) drop-shadow(0 0 60px rgba(100,220,150,0.3));
+}
+@keyframes revealPop {
+  from { transform:scale(0) rotate(-20deg); opacity:0; }
+  to   { transform:scale(1) rotate(0deg); opacity:1; }
+}
+
+.reveal-title {
+  font-family:'Cinzel Decorative', cursive;
+  font-size:clamp(16px,4vw,26px);
+  color:var(--gold-glow);
+  text-shadow:0 0 25px rgba(255,220,80,0.7);
+  margin-bottom:8px;
+  animation:titleGlow 2s ease-in-out infinite alternate;
+}
+
+.reveal-name {
+  font-family:'Cinzel', serif;
+  font-size:clamp(20px,5vw,38px);
+  font-weight:700;
+  color:#fff;
+  text-shadow:0 0 20px rgba(255,255,255,0.4);
+  letter-spacing:3px;
+  margin:12px 0 24px;
+}
+
+.confetti-piece {
+  position:absolute;
+  border-radius:3px;
+  animation:confettiFall linear forwards;
+  pointer-events:none;
+}
+@keyframes confettiFall {
+  0%   { transform:translateY(-20px) rotate(0deg); opacity:1; }
+  100% { transform:translateY(110vh) rotate(720deg); opacity:0; }
+}
+
+/* ===== MAGIC FOG REVEAL ===== */
+#fog-reveal {
+  position:fixed; inset:0; z-index:500;
+  pointer-events:none;
+  background:radial-gradient(ellipse at 50% 60%, rgba(100,180,120,0.0), rgba(100,180,120,0.0));
+  transition:background 2s ease;
+}
+#fog-reveal.active {
+  background:radial-gradient(ellipse 120% 120% at 50% 60%, rgba(120,200,140,0.95) 0%, rgba(60,120,80,0.98) 50%, rgba(20,60,30,1) 100%);
+  animation:fogReveal 3s ease forwards;
+}
+@keyframes fogReveal {
+  0%   { opacity:0; }
+  30%  { opacity:1; }
+  70%  { opacity:1; }
+  100% { opacity:0; }
+}
+
+/* ===== RESPONSIVE TWEAKS ===== */
+@media(max-width:480px) {
+  #screen-welcome .panel { padding:32px 20px 28px; }
+  .animals-grid { grid-template-columns:repeat(3,1fr); gap:10px; }
+  .animal-card { padding:10px 4px; }
+  #screen-explain .panel { padding:32px 20px; }
+  #screen-reveal .panel { padding:32px 20px; }
+}
+
+/* ===== PLAY AGAIN ===== */
+.btn-replay {
+  background:linear-gradient(135deg,#2c1a6e,#5b21b6,#7c3aed,#5b21b6,#2c1a6e);
+  background-size:200% 200%;
+  color:#e0d0ff;
+  font-size:clamp(12px,2vw,15px);
+  padding:12px 30px;
+  box-shadow:0 4px 20px rgba(124,58,237,0.4);
+  animation:shimmerBtn 3s ease infinite;
+}
+.btn-replay:hover {
+  transform:translateY(-2px) scale(1.03);
+  box-shadow:0 6px 25px rgba(124,58,237,0.6), 0 0 40px rgba(124,58,237,0.3);
+}
+
+/* Divider */
+.divider {
+  height:1px;
+  background:linear-gradient(90deg,transparent,rgba(240,192,64,0.4),transparent);
+  margin:20px 0;
+}
+</style>
+</head>
+<body>
+
+<!-- ===== BACKGROUND ===== -->
+<div id="valley-bg">
+  <div class="mountain mountain-1"></div>
+  <div class="mountain mountain-2"></div>
+  <div class="mountain mountain-3"></div>
+  <div class="mountain mountain-4"></div>
+  <div class="mountain mountain-5"></div>
+  <div id="moon"></div>
+  <!-- Trees injected by JS -->
+</div>
+
+<!-- Fog layers -->
+<div class="fog-layer"></div>
+<div class="fog-layer"></div>
+<div class="fog-layer"></div>
+
+<!-- Particles & runes -->
+<div id="particles"></div>
+
+<!-- Magic fog for reveal -->
+<div id="fog-reveal"></div>
+
+<!-- Language Toggle -->
+<button id="lang-btn" onclick="toggleLang()">🌐 EN / UZ</button>
+
+<!-- ===== SCREEN 1: WELCOME ===== -->
+<div class="screen" id="screen-welcome">
+  <div class="panel">
+    <div class="valley-title" data-uz="Sehrli vodiyga xush kelibsiz!" data-en="Welcome to the Magic Valley!">Welcome to the Magic Valley!</div>
+    <div class="divider"></div>
+    <div class="hunter-avatar">🧙</div>
+    <p style="font-style:italic;color:rgba(200,220,200,0.7);font-size:14px;margin-bottom:24px;" data-uz="Ovchi sening tanlovingni topadi..." data-en="The hunter will find your choice...">The hunter will find your choice...</p>
+    <button class="btn btn-gold" onclick="goToAnimals()" data-uz="O'yinni boshlash" data-en="Start Game">Start Game</button>
+  </div>
+</div>
+
+<!-- ===== SCREEN 2: ANIMAL SELECTION ===== -->
+<div class="screen hidden" id="screen-animals">
+  <div class="panel">
+    <div class="section-title" data-uz="Hayvonni tanlang" data-en="Choose Your Animal">Choose Your Animal</div>
+    <div class="hunter-row">
+      <span class="hunter-sm">🧙</span>
+      <div class="speech-bubble" data-uz="O'zingizga yoqqan hayvonni tanlang. Men uni topaman!" data-en="Choose your favorite animal. I will find it!">Choose your favorite animal. I will find it!</div>
+    </div>
+    <div class="animals-grid" id="animals-grid"></div>
+    <div style="text-align:center">
+      <button class="btn btn-gold" onclick="goToExplain()" data-uz="Hayvonni tanladim" data-en="I Chose My Animal">I Chose My Animal</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== SCREEN 3: EXPLANATION ===== -->
+<div class="screen hidden" id="screen-explain">
+  <div class="panel">
+    <div class="section-title" data-uz="Ovchi gapirmoqda..." data-en="The Hunter Speaks...">The Hunter Speaks...</div>
+    <div class="hunter-big">🧙</div>
+    <p class="explain-text" data-uz="Men senga vodiyning 4 tomonida yashovchi hayvonlarni ko'rsataman. Ularning ichida sen tanlagan hayvon bor yoki yo'qligini ayt. Men esa sen tanlagan hayvonni topaman." data-en="I will show you animals living in the four sides of the valley. Tell me whether your chosen animal is there or not, and I will find your animal.">
+      I will show you animals living in the four sides of the valley. Tell me whether your chosen animal is there or not, and I will find your animal.
+    </p>
+    <div class="divider"></div>
+    <button class="btn btn-gold" onclick="goToRegions()" data-uz="Boshlash!" data-en="Let's Begin!">Let's Begin!</button>
+  </div>
+</div>
+
+<!-- ===== SCREEN 4: FOUR REGIONS ===== -->
+<div class="screen hidden" id="screen-regions">
+  <div class="panel">
+    <div class="section-title" data-uz="Vodiyning to'rt tomoni" data-en="The Four Sides of the Valley">The Four Sides of the Valley</div>
+    <p style="text-align:center;color:rgba(200,220,200,0.7);font-size:13px;margin-bottom:8px;font-style:italic;"
+       data-uz="Sen tanlagan hayvon bu tomonda bormi?" data-en="Is your chosen animal in this region?">
+       Is your chosen animal in this region?
+    </p>
+    <div class="progress-row" id="progress-row">
+      <div class="prog-dot" id="dot-west"></div>
+      <div class="prog-dot" id="dot-north"></div>
+      <div class="prog-dot" id="dot-south"></div>
+      <div class="prog-dot" id="dot-east"></div>
+    </div>
+    <div class="regions-grid" id="regions-grid"></div>
+  </div>
+</div>
+
+<!-- ===== SCREEN 5: REVEAL ===== -->
+<div class="screen hidden" id="screen-reveal">
+  <div class="panel" style="position:relative;overflow:hidden;">
+    <div class="section-title" data-uz="Ovchi seni topdi!" data-en="The Hunter Found It!">The Hunter Found It!</div>
+    <div style="font-size:40px;margin:8px 0;">🧙</div>
+    <p class="reveal-title" data-uz="Bu sen tanlagan hayvon!" data-en="This is your chosen animal!">This is your chosen animal!</p>
+    <div class="reveal-animal-big" id="reveal-emoji">🐻</div>
+    <div class="reveal-name" id="reveal-name">Bear</div>
+    <div class="divider"></div>
+    <div style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap;">
+      <button class="btn btn-replay" onclick="playAgain()" data-uz="Qaytadan o'ynash" data-en="Play Again">Play Again</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ===================================================
+   MAGIC VALLEY ANIMAL FINDER
+   Complete Game Logic
+=================================================== */
+
+// ===== LANGUAGE SYSTEM =====
+let lang = 'en';
+
+function toggleLang() {
+  lang = lang === 'en' ? 'uz' : 'en';
+  applyLang();
+}
+
+function applyLang() {
+  document.querySelectorAll('[data-en]').forEach(el => {
+    el.textContent = el.getAttribute('data-' + lang);
+  });
+  // Rebuild dynamic content if visible
+  buildRegions();
+  buildAnimalsGrid();
+}
+
+// ===== ANIMAL DATA =====
+// Binary IDs: West=1, North=2, South=4, East=8
+const ANIMALS = [
+  { id:1,  emoji:'🐻', en:'Bear',     uz:'Ayiq',     regions:[1] },          // West only
+  { id:2,  emoji:'🐺', en:'Wolf',     uz:"Bo'ri",    regions:[2] },          // North only
+  { id:3,  emoji:'🐟', en:'Fish',     uz:'Baliq',    regions:[1,2] },        // West+North
+  { id:4,  emoji:'🐄', en:'Cow',      uz:'Sigir',    regions:[4] },          // South only
+  { id:5,  emoji:'🐐', en:'Goat',     uz:'Echki',    regions:[1,4] },        // West+South
+  { id:6,  emoji:'🦊', en:'Fox',      uz:'Tulki',    regions:[2,4] },        // North+South
+  { id:7,  emoji:'🐯', en:'Tiger',    uz:"Yo'lbars", regions:[1,2,4] },      // West+North+South
+  { id:8,  emoji:'🐑', en:'Sheep',    uz:"Qo'y",     regions:[8] },          // East only
+  { id:9,  emoji:'🐱', en:'Cat',      uz:'Mushuk',   regions:[1,8] },        // West+East
+  { id:10, emoji:'🐆', en:'Leopard',  uz:'Qoplon',   regions:[2,8] },        // North+East
+  { id:11, emoji:'🐊', en:'Crocodile',uz:'Timsoh',   regions:[1,2,8] },      // West+North+East
+  { id:12, emoji:'🐕', en:'Dog',      uz:'It',       regions:[4,8] },        // South+East
+  { id:13, emoji:'🐰', en:'Rabbit',   uz:'Quyon',    regions:[1,4,8] },      // West+South+East
+  { id:14, emoji:'🐈', en:'Cheetah',  uz:'Gepard',   regions:[2,4,8] },      // North+South+East
+  { id:15, emoji:'🦌', en:'Deer',     uz:'Kiyik',    regions:[1,2,4,8] },    // All regions
+];
+
+// ===== REGIONS DATA =====
+// Each region card with its value and animal IDs
+const REGIONS = [
+  {
+    key:'west', value:1,
+    icon:'🌅',
+    en:'West',  uz:"G'arb",
+    animals: ANIMALS.filter(a => a.regions.includes(1)),
+  },
+  {
+    key:'north', value:2,
+    icon:'❄️',
+    en:'North', uz:'Shimol',
+    animals: ANIMALS.filter(a => a.regions.includes(2)),
+  },
+  {
+    key:'south', value:4,
+    icon:'🌿',
+    en:'South', uz:'Janub',
+    animals: ANIMALS.filter(a => a.regions.includes(4)),
+  },
+  {
+    key:'east', value:8,
+    icon:'🌄',
+    en:'East',  uz:'Sharq',
+    animals: ANIMALS.filter(a => a.regions.includes(8)),
+  },
+];
+
+// ===== GAME STATE =====
+let score = 0;
+let answeredRegions = {};
+
+// ===== BUILD ANIMALS GRID =====
+function buildAnimalsGrid() {
+  const grid = document.getElementById('animals-grid');
+  if (!grid) return;
+  grid.innerHTML = '';
+  ANIMALS.forEach(a => {
+    const card = document.createElement('div');
+    card.className = 'animal-card';
+    card.innerHTML = `
+      <span class="animal-emoji">${a.emoji}</span>
+      <span class="animal-name">${a[lang]}</span>
+    `;
+    grid.appendChild(card);
+  });
+}
+
+// ===== BUILD REGIONS =====
+function buildRegions() {
+  const grid = document.getElementById('regions-grid');
+  if (!grid) return;
+  grid.innerHTML = '';
+
+  REGIONS.forEach(region => {
+    const answered = answeredRegions[region.key];
+    const card = document.createElement('div');
+    card.className = 'region-card' + (answered === true ? ' answered' : answered === false ? ' answered-no' : '');
+    card.id = 'region-' + region.key;
+
+    const animalTags = region.animals.map(a =>
+      `<span class="region-animal-tag"><span class="tag-emoji">${a.emoji}</span>${a[lang]}</span>`
+    ).join('');
+
+    let actionHTML;
+    if (answered === undefined) {
+      const yesLabel = lang === 'en' ? 'Yes' : 'Bor';
+      const noLabel  = lang === 'en' ? 'No'  : "Yo'q";
+      actionHTML = `
+        <div class="region-btns">
+          <button class="btn btn-yes" onclick="answer('${region.key}',true)">✓ ${yesLabel}</button>
+          <button class="btn btn-no"  onclick="answer('${region.key}',false)">✗ ${noLabel}</button>
+        </div>`;
+    } else {
+      const badge = answered
+        ? `<span class="answered-badge">✓ ${lang==='en'?'Yes':'Bor'}</span>`
+        : `<span class="answered-badge no-badge">✗ ${lang==='en'?'No':"Yo'q"}</span>`;
+      actionHTML = badge;
+    }
+
+    card.innerHTML = `
+      <div class="region-name">${region.icon} ${region[lang]}</div>
+      <div class="region-animals">${animalTags}</div>
+      ${actionHTML}
+    `;
+    grid.appendChild(card);
+  });
+}
+
+// ===== ANSWER LOGIC =====
+function answer(regionKey, isYes) {
+  if (answeredRegions[regionKey] !== undefined) return;
+
+  const region = REGIONS.find(r => r.key === regionKey);
+  if (isYes) score += region.value;
+  answeredRegions[regionKey] = isYes;
+
+  // Update progress dot
+  const dot = document.getElementById('dot-' + regionKey);
+  if (dot) {
+    dot.className = 'prog-dot ' + (isYes ? 'done-yes' : 'done-no');
+  }
+
+  // Rebuild regions display
+  buildRegions();
+
+  // Check if all 4 answered
+  if (Object.keys(answeredRegions).length === 4) {
+    setTimeout(triggerReveal, 800);
+  }
+}
+
+// ===== REVEAL =====
+function triggerReveal() {
+  const animal = ANIMALS.find(a => a.id === score);
+  if (!animal) return;
+
+  // Fog animation
+  const fog = document.getElementById('fog-reveal');
+  fog.classList.add('active');
+
+  setTimeout(() => {
+    fog.classList.remove('active');
+
+    // Show reveal screen
+    document.getElementById('reveal-emoji').textContent = animal.emoji;
+    document.getElementById('reveal-name').textContent = animal[lang];
+
+    transitionTo('screen-reveal');
+    spawnConfetti();
+  }, 1500);
+}
+
+// ===== CONFETTI =====
+function spawnConfetti() {
+  const colors = ['#f0c040','#2ecc71','#e74c3c','#9b59b6','#3498db','#f39c12'];
+  const container = document.getElementById('screen-reveal');
+  for (let i = 0; i < 60; i++) {
+    setTimeout(() => {
+      const el = document.createElement('div');
+      el.className = 'confetti-piece';
+      el.style.cssText = `
+        left:${Math.random()*100}%;
+        top:0;
+        width:${6+Math.random()*8}px;
+        height:${10+Math.random()*10}px;
+        background:${colors[Math.floor(Math.random()*colors.length)]};
+        animation-duration:${2+Math.random()*2}s;
+        animation-delay:${Math.random()*0.5}s;
+      `;
+      container.appendChild(el);
+      setTimeout(() => el.remove(), 4000);
+    }, i*30);
+  }
+}
+
+// ===== SCREEN TRANSITIONS =====
+let currentScreen = 'screen-welcome';
+
+function transitionTo(targetId) {
+  const current = document.getElementById(currentScreen);
+  const target  = document.getElementById(targetId);
+  if (!target) return;
+
+  current.classList.add('out');
+  setTimeout(() => {
+    current.classList.add('hidden');
+    current.classList.remove('out');
+    target.classList.remove('hidden');
+    // Force reflow
+    void target.offsetWidth;
+    currentScreen = targetId;
+  }, 700);
+}
+
+function goToAnimals() {
+  buildAnimalsGrid();
+  transitionTo('screen-animals');
+}
+
+function goToExplain() {
+  transitionTo('screen-explain');
+}
+
+function goToRegions() {
+  score = 0;
+  answeredRegions = {};
+  buildRegions();
+  // Reset progress dots
+  ['west','north','south','east'].forEach(k => {
+    const d = document.getElementById('dot-' + k);
+    if (d) d.className = 'prog-dot';
+  });
+  transitionTo('screen-regions');
+}
+
+function playAgain() {
+  score = 0;
+  answeredRegions = {};
+  // Rebuild reveal animal display
+  document.getElementById('reveal-emoji').textContent = '?';
+  document.getElementById('reveal-name').textContent = '';
+  buildAnimalsGrid();
+  transitionTo('screen-animals');
+}
+
+// ===== BACKGROUND EFFECTS =====
+
+// Plant trees
+function plantTrees() {
+  const bg = document.getElementById('valley-bg');
+  const treePositions = [3,10,18,26,55,63,71,78,85,92];
+  treePositions.forEach(pos => {
+    const t = document.createElement('div');
+    t.className = 'tree';
+    t.style.left = pos + '%';
+    t.style.animationDelay = (Math.random()*2) + 's';
+    bg.appendChild(t);
+  });
+}
+
+// Create floating particles
+function createParticles() {
+  const container = document.getElementById('particles');
+  const colors = [
+    'rgba(240,200,80,0.6)',
+    'rgba(100,220,140,0.5)',
+    'rgba(180,240,200,0.4)',
+    'rgba(255,255,200,0.5)',
+  ];
+
+  for (let i = 0; i < 35; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    const size = 2 + Math.random() * 5;
+    const dx = (Math.random() - 0.5) * 120;
+    p.style.cssText = `
+      left:${Math.random()*100}%;
+      bottom:${Math.random()*30}%;
+      width:${size}px;
+      height:${size}px;
+      background:${colors[Math.floor(Math.random()*colors.length)]};
+      --dx:${dx}px;
+      animation-duration:${6+Math.random()*10}s;
+      animation-delay:${Math.random()*8}s;
+      box-shadow:0 0 ${size*2}px currentColor;
+    `;
+    container.appendChild(p);
+  }
+}
+
+// Floating magical runes
+function createRunes() {
+  const runeChars = ['✦','✧','⋆','✺','❋','✿','⚜','❈','✵','⚝','⟡','᛫'];
+  const container = document.getElementById('particles');
+  for (let i = 0; i < 12; i++) {
+    const r = document.createElement('div');
+    r.className = 'rune';
+    r.textContent = runeChars[Math.floor(Math.random()*runeChars.length)];
+    r.style.cssText = `
+      left:${5+Math.random()*90}%;
+      top:${10+Math.random()*70}%;
+      animation-delay:${Math.random()*8}s;
+      animation-duration:${5+Math.random()*6}s;
+      font-size:${14+Math.random()*14}px;
+    `;
+    container.appendChild(r);
+  }
+}
+
+// ===== INIT =====
+document.addEventListener('DOMContentLoaded', () => {
+  plantTrees();
+  createParticles();
+  createRunes();
+  applyLang();
+});
+</script>
+</body>
+</html>
